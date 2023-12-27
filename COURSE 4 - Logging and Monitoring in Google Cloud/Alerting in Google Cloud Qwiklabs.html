@@ -1,0 +1,937 @@
+
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>Alerting in Google Cloud | Qwiklabs</title>
+<meta name="action-cable-url" content="/cable" />
+<script>
+//<![CDATA[
+window.gon={};gon.deployment="googlecoursera-run";
+//]]>
+</script>
+<script>
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer',"GTM-5XSKHDX");
+</script>
+<script src="https://cdn.qwiklabs.com/assets/hallofmirrors/polyfills/webcomponents-loader-b1b28b59480cca2ab0c23485f64ba2ec8893bdc9.js"></script>
+<script src="https://cdn.qwiklabs.com/assets/vendor-00b9f69ad908fc0b1976f728c833423441752435.js"></script>
+<script src="https://cdn.qwiklabs.com/assets/application-383ac8dce987ca8ef68702cd64980b76aa83af6d.js"></script>
+<script src="https://cdn.qwiklabs.com/assets/hallofmirrors/hallofmirrors-ea1f357188726febdc7b0d7c93ee94beed0f285a.js"></script>
+<script id='ze-snippet' src='https://static.zdassets.com/ekr/snippet.js?key=511e4158-0aec-4e3c-b2e6-4daa1769f51e'></script>
+
+
+<meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="i8LNRgmfVw1xwz2F7K6Fd4tEJ9k2K8O0TVSCDkvAOdhZFWeX/Jgh1KbBXPmHaU2lTwxatytyHoUDtQ38nafAjQ==" />
+<meta content='width=device-width, initial-scale=1.0, user-scalable=yes' name='viewport'>
+<meta content='1rRsY0INj8RvwB5EF5pwdxt2A2P9aDgAlsICaJ0d5w0' name='google-site-verification'>
+<meta content='#3681E4' property='msapplication-TileColor'>
+<meta content='/favicon-144.png' property='msapplication-TileImage'>
+<meta content='[{&quot;id&quot;:&quot;recaptcha_experiment&quot;,&quot;optimize_id&quot;:&quot;dpViOcLkT3qS4TvL2mRojA&quot;,&quot;title&quot;:&quot;No Recaptcha shown for trusted users&quot;,&quot;variant_index&quot;:0,&quot;variant&quot;:&quot;original&quot;}]' name='active-experiments'>
+<meta content='{&quot;userId&quot;:12197799,&quot;experimentIds&quot;:[&quot;search_updates&quot;,&quot;organization_announcements&quot;,&quot;organization_learning_plans&quot;,&quot;chat_off_for_signed_out_users&quot;,&quot;alexandria_show_bundle_errors&quot;,&quot;program_announcements&quot;,&quot;canonical_domain_redirect&quot;,&quot;program_learning_assignment&quot;,&quot;barker&quot;,&quot;used_in&quot;,&quot;course_upgrade&quot;,&quot;community_forum&quot;,&quot;peer_assignment&quot;,&quot;enforce_codebuild_verdicts&quot;,&quot;show_annual_purchase_now&quot;,&quot;oauth_risc_shutoff&quot;,&quot;teams&quot;,&quot;content_provider_admin&quot;]}' name='help-api-product-data'>
+<meta content='{&quot;groupIds&quot;:[&quot;non_suadmins&quot;,&quot;students&quot;,&quot;non_organization&quot;,&quot;non_program&quot;]}' name='help-api-custom-data'>
+<meta content='Deploy an application to Google Cloud and then create alerting policies for it' name='description'>
+<meta content='Qwiklabs' name='author'>
+<meta content='Alerting in Google Cloud | Qwiklabs' property='og:title'>
+<meta content='website' property='og:type'>
+<meta content='/favicon-144.png' property='og:image'>
+<meta content='Qwiklabs' property='og:site_name'>
+<meta content='Deploy an application to Google Cloud and then create alerting policies for it' property='og:description'>
+<meta content='/qwiklabs_logo_900x887.png' property='og:logo' size='900x887'>
+<meta content='/qwiklabs_logo_994x187.png' property='og:logo' size='994x187'>
+
+
+<meta property="og:url" content="https://googlecoursera.qwiklabs.com/focuses/32613661?parent=lti_session" /><link href="https://googlecoursera.qwiklabs.com/focuses/32613661?parent=lti_session" rel="canonical" />
+<link color='#3681E4' href='/favicon-svg.svg' rel='mask-icon'>
+<link href='/favicon-180.png' rel='apple-touch-icon-precomposed'>
+<link href='/favicon-32.png' rel='shortcut icon' type='image/x-icon'>
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald:400|Roboto+Mono:400,700|Roboto:300,400,500,700|Google+Sans:300,400,500,700|Google+Sans+Display:400|Material+Icons|Google+Material+Icons|Google+Sans+Text:400,500,700" media="screen" />
+
+<link rel="stylesheet" href="https://cdn.qwiklabs.com/assets/application-29602dc272dc25b87d80aad082aeac190a74d2ab.css" media="all" />
+<link rel="stylesheet" href="https://www.gstatic.com/glue/cookienotificationbar/cookienotificationbar.min.css" media="screen" />
+
+
+<style>
+  :root {
+    --primary-text-on-surface-color: #1a73e8;
+    --primary-text-on-surface-color-dark: #1568d6;
+    --primary-text-on-surface-color-darker: #135ec1;
+    --primary-text-on-surface-color-darkest: #1154ac;
+    --primary-surface-color: #1a73e8;
+    --primary-surface-color-rgb: 26,115,232;
+    --primary-surface-color-light: #d1e3fa;
+    --primary-surface-color-lightest: #e8f1fd;
+    --text-on-primary-color: #ffffff;
+    --accent-text-on-surface-color: #f29900;
+    --accent-surface-color: #f9ab00;
+    --accent-surface-color-rgb: 249,171,0;
+    --accent-surface-color-light: #ffefcc;
+    --text-on-accent-color: #202124;
+  }
+</style>
+
+
+
+</head>
+<body class='lab-show l-full no-nav application-new focuses focuses-show lab-show l-full no-nav '>
+<div class='header-container'>
+<div class='header'>
+<ql-toolbar jumpEnabled>
+<div class='header__title' slot='title'>
+<ql-icon-button label="Back" href="https://www.coursera.org/" id="824d0c291f6822b0" target="_self" tip="Back">arrow_back</ql-icon-button>
+<h1 class='ql-title-medium'>Alerting in Google Cloud</h1>
+</div>
+<div class='header__actions' slot='action'>
+<ql-icon-button id='control-panel-target' style='display: none;'>
+dashboard
+</ql-icon-button>
+<ql-menu for='control-panel-target' id='control-panel-menu'></ql-menu>
+<ql-icon-button class='mobile-hide' icon='help_outline' id='help-menu-button' label='Open help menu' tip='Help'></ql-icon-button>
+<ql-menu for='help-menu-button' id='help-menu'>
+<ql-menu-item data-analytics-action='opened_help' data-analytics-label='lab' label='Help Center' onclick='hallofmirrors.helpService.startHelp({&quot;productData&quot;:{&quot;userId&quot;:12197799},&quot;context&quot;:&quot;lab&quot;})'></ql-menu-item>
+<ql-menu-item href='mailto:support@qwiklabs.com' label='Email support'></ql-menu-item>
+<ql-menu-item label='Chat support' onClick='ql.chat.open()'></ql-menu-item>
+</ql-menu>
+
+<ql-icon-button class='mobile-hide' icon='language' id='language' label='Select your language preference' tip='Language'></ql-icon-button>
+<ql-menu for='language'>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='ar' href='/focuses/32613661?locale=ar&amp;parent=lti_session' label='العربية‬‎' lang='ar'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='de' href='/focuses/32613661?locale=de&amp;parent=lti_session' label='Deutsch' lang='de'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='en' href='/focuses/32613661?locale=en&amp;parent=lti_session' label='English' lang='en'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='es' href='/focuses/32613661?locale=es&amp;parent=lti_session' label='español (Latinoamérica)' lang='es'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='fr' href='/focuses/32613661?locale=fr&amp;parent=lti_session' label='français' lang='fr'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='fr_CA' href='/focuses/32613661?locale=fr_CA&amp;parent=lti_session' label='français (Canada)' lang='fr-CA'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='he' href='/focuses/32613661?locale=he&amp;parent=lti_session' label='עברית' lang='he'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='id' href='/focuses/32613661?locale=id&amp;parent=lti_session' label='bahasa Indonesia' lang='id'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='it' href='/focuses/32613661?locale=it&amp;parent=lti_session' label='Italiano' lang='it'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='ja' href='/focuses/32613661?locale=ja&amp;parent=lti_session' label='日本語' lang='ja'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='ko' href='/focuses/32613661?locale=ko&amp;parent=lti_session' label='한국어' lang='ko'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='pl' href='/focuses/32613661?locale=pl&amp;parent=lti_session' label='Polski' lang='pl'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='pt_BR' href='/focuses/32613661?locale=pt_BR&amp;parent=lti_session' label='português (Brasil)' lang='pt-BR'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='pt_PT' href='/focuses/32613661?locale=pt_PT&amp;parent=lti_session' label='português (Portugal)' lang='pt-PT'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='ru' href='/focuses/32613661?locale=ru&amp;parent=lti_session' label='русский' lang='ru'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='tr' href='/focuses/32613661?locale=tr&amp;parent=lti_session' label='Türkçe' lang='tr'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='uk' href='/focuses/32613661?locale=uk&amp;parent=lti_session' label='український' lang='uk'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='zh' href='/focuses/32613661?locale=zh&amp;parent=lti_session' label='简体中文' lang='zh'></ql-menu-item>
+<ql-menu-item data-analytics-action='changed_locale' data-analytics-label='zh_TW' href='/focuses/32613661?locale=zh_TW&amp;parent=lti_session' label='繁體中文' lang='zh-TW'></ql-menu-item>
+</ql-menu>
+
+
+<ql-icon-button id='my_account' label='My account' tip='My account'>
+<ql-avatar src='https://lh3.googleusercontent.com/a/ACg8ocI6s7UhNvX_oCOJMPhLJPmqhqIgwu_5AK0t7wpjF-5jmQo=s320-c'></ql-avatar>
+</ql-icon-button>
+<ql-menu for='my_account' id='my_account_menu' style='max-height: 640px'>
+<div class='my-account-menu'>
+<ql-avatar class='l-mtl l-mbl' size='120' src='https://lh3.googleusercontent.com/a/ACg8ocI6s7UhNvX_oCOJMPhLJPmqhqIgwu_5AK0t7wpjF-5jmQo=s320-c'></ql-avatar>
+<div class='my-account-menu__user-info l-mbl'>
+<h4 class='ql-title-medium'>Justin Ho</h4>
+<p class='ql-body-medium text--light'>cliffdove@gmail.com</p>
+<p class='ql-body-medium text--light'>
+</p>
+<a class="text--green ql-title-small" href="/my_account/payments"><ql-chip positive>
+0 Credits
+</ql-chip>
+</a></div>
+<div class='buttons l-mbl'>
+<a class="button button--hairline" id="settings" href="/my_account/profile">Settings</a>
+</div>
+<hr>
+<ql-button data-analytics-action='clicked_sign_out' href='/users/sign_out' method='delete'>
+Sign Out
+</ql-button>
+<div class='privacy l-mtl'>
+<a target="_blank" class="ql-label-medium text--light" href="/privacy_policy">Privacy</a>
+<span class='ql-label-medium text--light l-mls l-mrs'>&middot;</span>
+<a class="ql-label-medium text--light" href="/terms_of_service">Terms</a>
+</div>
+</div>
+</ql-menu>
+
+</div>
+</ql-toolbar>
+
+</div>
+</div>
+
+<nav class='nav-panel js-nav-panel'>
+<div class='nav-panel__logo'>
+<div class="custom-logo">Qwiklabs</div>
+</div>
+<nav class='ql-sidenav'>
+<ql-sidenav-item href='/' icon='home' label='Home'></ql-sidenav-item>
+
+<ql-sidenav-item href='/catalog' icon='school' label='Catalog'></ql-sidenav-item>
+
+<ql-sidenav-item href='/profile' icon='event_note' label='Profile'></ql-sidenav-item>
+
+</nav>
+
+</nav>
+<div class='nav-panel__overlay js-nav-toggle'></div>
+
+<main class='js-main' id='jump-content'>
+<div class='l-main-wrapper' id='main-wrapper'>
+
+
+
+
+<div class='lab-assessment__tab js-open-lab-assessment-panel'>
+<button class='js-lab-assessment-total-score'>
+—/100
+</button>
+</div>
+<div aria-labelledby='lab-assessment-checkpoint' class='lab-assessment__panel js-lab-assessment-panel' role='dialog'>
+<div class='lab-assessment__panel__header'>
+<h4 id='lab-assessment-checkpoint'>Checkpoints</h4>
+<ql-icon-button class='js-close-lab-assessment-panel' icon='arrow_forward' label='Close dialog'></ql-icon-button>
+</div>
+<div class='lab-assessment__step'>
+<p class='lab-assessment__step__title' id='lab-assessment-step-title'>
+Deploy an application to App Engine
+</p>
+<div class='lab-assessment__step__action'>
+<ql-button class='js-show-run-step-button' description='Deploy an application to App Engine' step_no='1'>
+Check my progress
+</ql-button>
+<p class='lab-assessment__step__score'>
+<span class='js-assessment-step-score-1'>
+</span>
+/ 50
+</p>
+</div>
+</div>
+
+<div class='lab-assessment__step'>
+<p class='lab-assessment__step__title' id='lab-assessment-step-title'>
+Create an App Engine latency alert
+</p>
+<div class='lab-assessment__step__action'>
+<ql-button class='js-show-run-step-button' description='Create an App Engine latency alert' step_no='2'>
+Check my progress
+</ql-button>
+<p class='lab-assessment__step__score'>
+<span class='js-assessment-step-score-2'>
+</span>
+/ 50
+</p>
+</div>
+</div>
+
+</div>
+<ql-drawer-container class='js-lab-state' data-analytics-payload='{&quot;label&quot;:&quot;Alerting in Google Cloud&quot;,&quot;lab_name&quot;:&quot;Alerting in Google Cloud&quot;,&quot;classroom_name&quot;:null,&quot;deployment&quot;:&quot;googlecoursera-run&quot;}' data-credits='0.0' data-focus-id='32613661' data-lab-billing-limit='0.0' data-lab-duration='5400' data-parent='lti_session' data-recaptcha-enabled id='lab-container'>
+<ql-drawer id='terminal-drawer' slot='drawer'>
+<iframe allow='clipboard-read' class='terminal' id='embedded-resource'></iframe>
+</ql-drawer>
+<ql-drawer-content class='js-lab-wrapper' id='lab-content' slot='drawer-content'>
+<ql-drawer-container id='lab-content-container'>
+<ql-drawer id='control-panel-drawer' open slot='drawer' width='320'>
+<ql-lab-control-panel class='ql-lab-control-panel__max-height control-panel js-lab-control-panel' connectionFiles='[]' labControlButton='{&quot;disabled&quot;:false,&quot;pending&quot;:false,&quot;running&quot;:false}' labDetails='[]' labTimer='{&quot;ticking&quot;:false,&quot;secondsRemaining&quot;:5400}' studentResources='[]'>
+<script src="https://www.recaptcha.net/recaptcha/api.js?render=6LeVI8IUAAAAAJNdox5eTkYrw9SbvhZ1TFyv3iHr"   ></script>
+        <script>
+          // Define function so that we can call it again later if we need to reset it
+          // This executes reCAPTCHA and then calls our callback.
+          function executeRecaptchaForStartLab() {
+            grecaptcha.ready(function() {
+              grecaptcha.execute('6LeVI8IUAAAAAJNdox5eTkYrw9SbvhZ1TFyv3iHr', {action: 'start_lab'}).then(function(token) {
+                setInputWithRecaptchaResponseTokenForStartLab('g-recaptcha-response-data-start-lab', token)
+              });
+            });
+          };
+          // Invoke immediately
+          executeRecaptchaForStartLab()
+
+          // Async variant so you can await this function from another async function (no need for
+          // an explicit callback function then!)
+          // Returns a Promise that resolves with the response token.
+          async function executeRecaptchaForStartLabAsync() {
+            return new Promise((resolve, reject) => {
+             grecaptcha.ready(async function() {
+                resolve(await grecaptcha.execute('6LeVI8IUAAAAAJNdox5eTkYrw9SbvhZ1TFyv3iHr', {action: 'start_lab'}))
+              });
+            })
+          };
+
+                  var setInputWithRecaptchaResponseTokenForStartLab = function(id, token) {
+          var element = document.getElementById(id);
+          if (element !== null) element.value = token;
+        }
+
+        </script>
+<input type="hidden" name="g-recaptcha-response-data[start_lab]" id="g-recaptcha-response-data-start-lab" data-sitekey="6LeVI8IUAAAAAJNdox5eTkYrw9SbvhZ1TFyv3iHr" class="g-recaptcha g-recaptcha-response "/>
+
+<div aria-live='polite' class='hidden' id='recaptcha-v2-start-lab' slot='recaptcha'>
+<script src="https://www.recaptcha.net/recaptcha/api.js" async defer ></script>
+<div data-sitekey="6LeOI8IUAAAAAPkHlMAE9NReCD_1WD81iYlBlCnV" data-callback="recaptchaComplete" data-expired-callback="expireV2Token" class="g-recaptcha "></div>
+          <noscript>
+            <div>
+              <div style="width: 302px; height: 422px; position: relative;">
+                <div style="width: 302px; height: 422px; position: absolute;">
+                  <iframe
+                    src="https://www.recaptcha.net/recaptcha/api/fallback?k=6LeOI8IUAAAAAPkHlMAE9NReCD_1WD81iYlBlCnV"
+                    name="ReCAPTCHA"
+                    style="width: 302px; height: 422px; border-style: none; border: 0; overflow: hidden;">
+                  </iframe>
+                </div>
+              </div>
+              <div style="width: 300px; height: 60px; border-style: none;
+                bottom: 12px; left: 25px; margin: 0px; padding: 0px; right: 25px;
+                background: #f9f9f9; border: 1px solid #c1c1c1; border-radius: 3px;">
+                <textarea id="g-recaptcha-response" name="g-recaptcha-response"
+                  class="g-recaptcha-response"
+                  style="width: 250px; height: 40px; border: 1px solid #c1c1c1;
+                  margin: 10px 25px; padding: 0px; resize: none;">
+                </textarea>
+              </div>
+            </div>
+          </noscript>
+
+</div>
+</ql-lab-control-panel>
+</ql-drawer>
+<ql-drawer-content id='lab-instructions' slot='drawer-content'>
+<div class='lab-content-container'>
+<div class='alert alert--fake js-alert'>
+<p class='alert__message js-alert-message' role='alert'></p>
+<ql-icon-button class='alert__close js-alert-close' icon='clear'></ql-icon-button>
+<iframe class='l-ie-iframe-fix' tabindex='-1'></iframe>
+</div>
+<div class='lab-content__renderable-instructions js-lab-content'>
+<div class='lab-preamble'>
+<h1 class='lab-preamble__title'>
+Alerting in Google Cloud
+</h1>
+<div class='lab-preamble__details ql-title-medium'>
+<span>1 hour 30 minutes</span>
+<span>Free</span>
+<div class='lab__rating'>
+<a aria-label="Lab Reviews" href="/focuses/32613661/reviews?parent=lti_session"><div class='rateit' data-rateit-readonly='true' data-rateit-value='4.2391'></div>
+
+</a></div>
+</div>
+</div>
+<div class='lab-outline-place-holder'></div>
+
+<div class='markdown-lab-instructions js-markdown-instructions' id='markdown-lab-instructions'>
+
+<h2 id="step1">Overview</h2>
+<p>In this lab, you deploy an application to App Engine and then create alerting policies to notify you if the application is not accessible or is generating errors.</p>
+<h3>Objectives</h3>
+<p>In this lab, you learn how to perform the following tasks:</p>
+<ul>
+<li>Download a sample app from GitHub.</li>
+<li>Deploy an application to App Engine.</li>
+<li>Create uptime checks and alerts.</li>
+<li>Optionally, create an alerting policy with the CLI.</li>
+</ul>
+<h2 id="step2">Setup and requirements</h2>
+<p>For each lab, you get a new Google Cloud project and set of resources for a fixed time at no cost.</p>
+<ol>
+<li>
+<p>Sign in to Qwiklabs using an <strong>incognito window</strong>.</p>
+</li>
+<li>
+<p>Note the lab's access time (for example, <code>1:15:00</code>), and make sure you can finish within that time.<br>
+There is no pause feature. You can restart if needed, but you have to start at the beginning.</p>
+</li>
+<li>
+<p>When ready, click <strong>Start lab</strong>.</p>
+</li>
+<li>
+<p>Note your lab credentials (<strong>Username</strong> and <strong>Password</strong>). You will use them to sign in to the Google Cloud Console.</p>
+</li>
+<li>
+<p>Click <strong>Open Google Console</strong>.</p>
+</li>
+<li>
+<p>Click <strong>Use another account</strong> and copy/paste credentials for <strong>this</strong> lab into the prompts.<br>
+If you use other credentials, you'll receive errors or <strong>incur charges</strong>.</p>
+</li>
+<li>
+<p>Accept the terms and skip the recovery resource page.</p>
+</li>
+</ol>
+<aside class="warning"><p><strong>Note:</strong> Do not click <strong>End Lab</strong> unless you have finished the lab or want to restart it. This clears your work and removes the project.
+  </p>
+</aside>
+
+<p>After you complete the initial sign-in steps, the project dashboard appears.</p>
+<p><img alt="Google Cloud Project Dashboard" src="https://cdn.qwiklabs.com/dxfeoOcn1ObyC0BYyoqqqSi4rO%2FeMdbWPFjoK6C0YYk%3D"></p>
+<h3>Activate Google Cloud Shell</h3>
+<p>Google Cloud Shell is a virtual machine that is loaded with development tools. It offers a persistent 5GB home directory and runs on the Google Cloud.</p>
+<p>Google Cloud Shell provides command-line access to your Google Cloud resources.</p>
+<ol>
+<li>
+<p>In Cloud console, on the top right toolbar, click the Open Cloud Shell button.</p>
+<p><img alt="Highlighted Cloud Shell icon" src="https://cdn.qwiklabs.com/00tA48qOVOyHrSa1DA7LwccfwQ9Z%2BE6dkvQ1MYPHzhQ%3D"></p>
+</li>
+<li>
+<p>Click <strong>Continue</strong>.</p>
+</li>
+</ol>
+<p>It takes a few moments to provision and connect to the environment. When you are connected, you are already authenticated, and the project is set to your <em>PROJECT_ID</em>. For example:</p>
+<p><img alt="Project ID highlighted in the Cloud Shell Terminal" src="https://cdn.qwiklabs.com/hmMK0W41Txk%2B20bQyuDP9g60vCdBajIS%2B52iI2f4bYk%3D"></p>
+<p><strong>gcloud</strong> is the command-line tool for Google Cloud. It comes pre-installed on Cloud Shell and supports tab-completion.</p>
+<ul>
+<li>You can list the active account name with this command:</li>
+</ul>
+<ql-code-block language="plaintext">
+gcloud auth list
+</ql-code-block>
+<p><strong>Output:</strong></p>
+<ql-code-block output="">
+Credentialed accounts:
+ - @.com (active)
+</ql-code-block>
+<p><strong>Example output:</strong></p>
+<ql-code-block output="">
+Credentialed accounts:
+ - google1623327_student@qwiklabs.net
+ </ql-code-block>
+<ul>
+<li>You can list the project ID with this command:</li>
+</ul>
+<ql-code-block language="plaintext">
+gcloud config list project
+</ql-code-block>
+<p><strong>Output:</strong></p>
+<ql-code-block output="">
+[core]
+project = 
+</ql-code-block>
+<p><strong>Example output:</strong></p>
+<ql-code-block output="">
+[core]
+project = qwiklabs-gcp-44776a13dea667a6
+</ql-code-block>
+<ql-infobox><strong>Note: </strong>
+  Full documentation of <strong>gcloud</strong> is available in the
+  <a href="https://cloud.google.com/sdk/gcloud" target="_blank">
+    gcloud CLI overview guide
+  </a>.
+</ql-infobox>
+
+<h2 id="step3">Task 1. Download and test a sample app from GitHub</h2>
+<ol>
+<li>
+<p>Switch to the Cloud Shell window.</p>
+</li>
+<li>
+<p>Clone the Google Training Data Analyst from GitHub into your Cloud Shell environment. The repo contains a simple application which is perfect for the requirements in this exercise.</p>
+<ql-code-block language="bash">
+git clone --depth 1 https://github.com/GoogleCloudPlatform/training-data-analyst.git
+</ql-code-block>
+</li>
+<li>
+<p>Once the cloning completes, change to the <code>deploying-apps-to-gcp</code> folder in the repository that contains our sample app:</p>
+<ql-code-block language="bash">
+cd ~/training-data-analyst/courses/design-process/deploying-apps-to-gcp
+</ql-code-block>
+</li>
+<li>
+<p>Open the <code>main.py</code> file in the Cloud Shell editor. If prompted click <strong>Open in a new window</strong>. Take a moment to explore the basic "Hello GCP" Python Flask application.</p>
+<ql-code-block language="bash">
+edit main.py
+</ql-code-block>
+</li>
+<li>
+<p>Close the editor and switch back to the Cloud Shell terminal. Click <strong>Open terminal</strong> at the top right to open the Terminal window. To test the program, load all of the Python application dependencies and then start the app.</p>
+<ql-code-block language="bash">
+sudo pip install -r requirements.txt
+python main.py
+</ql-code-block>
+</li>
+<li>
+<p>To see the program running, click the <strong>Web Preview</strong> button in the toolbar of Cloud Shell, and then select <strong>Preview on port 8080</strong>.</p>
+</li>
+</ol>
+<p><img alt="Web preview option 'Preview on port 8080'." src="https://cdn.qwiklabs.com/JARYDswFDX7LDBYD8iPeGv3TESis%2B6OVgvhroCP2Fgw%3D"></p>
+<p>The program should open a new browser tab and display the <code>Hello GCP</code> message.</p>
+<ol start="7">
+<li>Close the tab and switch back to Cloud Shell, then press CTRL+C to exit the running Flask server.</li>
+</ol>
+<h2 id="step4">Task 2. Deploy an application to App Engine</h2>
+<p>Now that we know the application works, let's deploy it to the App Engine.</p>
+<ol>
+<li>
+<p>Switch to (or reopen) the Cloud Shell code editor. Expand the <code>training-data-analyst/courses/design-process/deploying-apps-to-gcp</code> folder in the explorer tree on the left.</p>
+</li>
+<li>
+<p>From the <strong>File</strong> menu, select <strong>New File</strong> and name the file <strong>app.yaml</strong>.</p>
+</li>
+<li>
+<p>Paste the following into the file you just created:</p>
+<ql-code-block language="yaml">
+runtime: python39
+</ql-code-block>
+</li>
+<li>
+<p>To make sure the file is saved, select <strong>File &gt; Save</strong>.</p>
+</li>
+</ol>
+<p>Every project needs to first create an App Engine application before it can be used. This is done just once per project using the Console, or the <code>gcloud app create</code> command. Either way, you need to specify the region where you want the app to be created.</p>
+<ol start="5">
+<li>
+<p>Execute the following command in your Cloud Shell terminal. You may have to <strong>Authorize</strong> Cloud Shell to make such a change:</p>
+<ql-code-block templated="">
+gcloud app create --region={{{project_0.default_region|zone_to_be_set}}}
+</ql-code-block>
+</li>
+<li>
+<p>Deploy the basic application to App Engine. The following command looks in the current directory for the application. It sees the app.yaml file declaring it a Python application and it assumes the rest of the folder contains the application itself, with a starting point in main.py. It loads the dependencies, packages the application, and deploys into the App Engine as a Service.</p>
+<ql-code-block language="bash">
+gcloud app deploy --version=one --quiet
+</ql-code-block>
+</li>
+<li>
+<p>Wait for the application to finish deploying, then in the Google Cloud Console window, use the <strong>Navigation menu</strong> (<img alt="Navigation menu icon" src="https://cdn.qwiklabs.com/tkgw1TDgj4Q%2BYKQUW4jUFd0O5OEKlUMBRYbhlCrF0WY%3D">) to navigate to <strong>App Engine &gt; Dashboard</strong>.</p>
+</li>
+<li>
+<p>In the upper right of the dashboard, you see a link to your application similar to what is shown below.</p>
+</li>
+</ol>
+<p><img alt="App Engine Link" src="https://cdn.qwiklabs.com/9VRgE02Dmj3%2BzmhQW3DHgXxMajxYuinIHyOXTv1%2Bt8c%3D"></p>
+<ql-infobox><strong>Note:</strong> By default, the URL to an App Engine is the form of <code>https://project-id.wl.r.appspot.com</code>. </ql-infobox>
+<ol start="9">
+<li>
+<p>Click the link to test your newly deployed app. It should function exactly like it did when we ran it in Cloud Shell.</p>
+</li>
+<li>
+<p>Click refresh a number of times so Google Cloud can gather some sample data.</p>
+</li>
+</ol>
+<p>Click <em>Check my progress</em> to verify the objective.
+<ql-activity-tracking step="1">
+Deploy an application to App Engine.
+</ql-activity-tracking></p>
+<h2 id="step5">Task 3. Examine the App Engine logs</h2>
+<ol>
+<li>
+<p>Switch back to the Console and on the left side under <code>App Engine</code>, click the <strong>Versions</strong> link.</p>
+</li>
+<li>
+<p>Select <strong>Logs</strong> from the <code>Diagnose</code> column.</p>
+</li>
+</ol>
+<p><img alt="Logs Link highlighted in the Diagnose menu." src="https://cdn.qwiklabs.com/O%2BN1KP3QamN0cqh2UtLjWu4iy2NQLCDtGLZocTernoo%3D"></p>
+<ol start="3">
+<li>In the logs, you see the requests you just made. If you get here too fast, wait a few seconds and click the <strong>Jump to Now</strong> button.</li>
+</ol>
+<h2 id="step6">Task 4. Create an App Engine latency alert</h2>
+<p>Now that we have the application running, let's create an alert to watch for unusually high latency. To start, let's explore our application's current latency.</p>
+<h3>Check current application latency in Metrics explorer</h3>
+<ol>
+<li>
+<p>In the Google Cloud Console, use the <strong>Navigation menu</strong> to navigate to <strong>Monitoring &gt; Metrics explorer</strong>.</p>
+</li>
+<li>
+<p>Click on <strong>Metric</strong> drop-down and toggle off <strong>Show only active resources &amp; metrics</strong>.</p>
+</li>
+<li>
+<p>Set the <code>Metric</code> to <strong>GAE Application &gt; Http &gt; Response latency</strong>. Click <strong>Apply</strong>. Make sure the metric is an App Engine metric, and not an uptime check metric. Because we don't currently have an uptime check, the second option won't work.</p>
+</li>
+<li>
+<p>Change the <code>Grouping function</code> to <strong>mean</strong>.</p>
+</li>
+<li>
+<p>In <strong>Datapoint Alignment</strong> set the <code>Alignment function</code> to <strong>99th percentile</strong>.</p>
+</li>
+<li>
+<p>Take a moment and examine the chart.</p>
+</li>
+</ol>
+<p>We don't have a lot of data but we should have enough to display a chart line showing us the average time it took our application to return a response to the fastest 99% of requests, cutting off 1% of anomalies.</p>
+<h3>Create an alert based on the same metric</h3>
+<p>Our application is performing as expected now. There may have been a few slow responses when the application was first launched, but on average, you should be seeing response times under 200ms.</p>
+<p>Let's create an alert to notify us if we have response times over 5s for more than a minute.</p>
+<ol>
+<li>
+<p>Use the <strong>Navigation menu</strong> to navigate to <strong>Monitoring &gt; Alerting</strong>.</p>
+</li>
+<li>
+<p>At the top, click <strong>Edit Notification Channels</strong> and scroll to the Email section. Use <strong>Add New</strong> to add your email address as a valid notification channel. For <code>Display name</code> , choose any name and then click <strong>SAVE</strong>.</p>
+</li>
+<li>
+<p>Switch back to the main <strong>Alerting</strong> page and click <strong>Create Policy</strong>.</p>
+</li>
+<li>
+<p>Click <strong>Select a metric</strong> and toggle off <strong>Show only active resources &amp; metrics</strong> to display the same metric explorer page. Once again, set the <code>Metric</code> to <strong>GAE Application &gt; Http &gt; Response latency</strong>. Click <strong>Apply</strong>. Set <strong>rolling window</strong> to <code>1 min</code> and then click <strong>Next</strong>.</p>
+</li>
+</ol>
+<p>You'll notice the new <code>Configuration</code> section that's been added to the standard Metrics explorer window in the lower left.</p>
+<ol start="5">
+<li>
+<p>Set up a condition so that if <strong>Any time series violates</strong> the <code>Threshold postion</code> <strong>is above</strong> and  <code>Threshold value</code> to  <strong>8000ms</strong>, it should trigger an alert.</p>
+</li>
+<li>
+<p>Set the <code>condition name</code> to <strong>Response latency [MEAN] for 99th% over 8s</strong>.</p>
+</li>
+<li>
+<p>Take a moment to examine the alert's chart. It's the same chart we created earlier with the Metrics explorer, but this time there should be an alert line drawn at 8s.</p>
+</li>
+<li>
+<p>Click <strong>Next</strong>.</p>
+</li>
+<li>
+<p>For <code>Notifications and name</code>, expand the <code>Notification Channel</code> and check yourself, click <strong>OK</strong> (the notification channel you created earlier in this section).</p>
+</li>
+<li>
+<p>Name the alert <strong>Hello too slow</strong> and click <strong>Next</strong>. Review alert and click <strong>Create Policy</strong>.</p>
+</li>
+<li>
+<p>Update the application code to add a delay. Return to the Cloud Shell code editor. Expand the <strong>training-data-analyst/courses/design-process/deploying-apps-to-gcp</strong> folder in the explorer tree on the left.</p>
+</li>
+<li>
+<p>Click <code>main.py</code> to open it in the editor. Near the top at line 2, add the following imports statements (some will be used later in the exercise):</p>
+<ql-code-block language="python">
+import time
+import random
+import json
+</ql-code-block>
+</li>
+<li>
+<p>Replace the current <code>main()</code> function with the one below. This new version adds a sleep command which pauses the code for 10s in the middle of each request. This will be well over the threshold.</p>
+<ql-code-block language="python">
+@app.route("/")
+def main():
+    model = {"title": "Hello GCP."}
+    time.sleep(10)
+    return render_template('index.html', model=model)
+</ql-code-block>
+</li>
+<li>
+<p>Now re-deploy your application by rerunning:</p>
+<ql-code-block language="bash">
+gcloud app deploy --version=two --quiet
+</ql-code-block>
+</li>
+<li>
+<p>Wait for the command to finish the re-deployment.</p>
+</li>
+<li>
+<p>After the command completes, return to the <strong>App Engine &gt; Dashboard</strong> and make sure the link works.</p>
+</li>
+<li>
+<p>To generate some consistent load, in Cloud Shell, enter the following command:</p>
+<ql-code-block language="bash">
+while true; do curl -s https://$DEVSHELL_PROJECT_ID.appspot.com/ | grep -e "&lt;title&gt;" -e "error";sleep .$[( $RANDOM % 10 )]s;done
+</ql-code-block>
+</li>
+</ol>
+<ql-infobox><strong>Note:</strong> This command makes requests to the App Engine app continuously in a loop. The grep command will display the title of the page when the request works. It also displays the error, if it doesn’t work. Every iteration, the thread sleeps a random amount of time less than a second, but with the 10s response time delay it will seem much longer.</ql-infobox>
+<ol start="18">
+<li>
+<p>Wait and after a few minutes (typically about 5), you should receive an email notifying you of the alert. When you do, switch back to the Cloud Shell terminal and use CTRL+C to stop the load tester loop.</p>
+</li>
+<li>
+<p>Use the <strong>Navigation menu</strong> to view the <strong>Monitoring &gt; Alerting</strong> page in the Google Cloud Console.</p>
+</li>
+</ol>
+<p>Notice the firing alert and how it created an incident.</p>
+<ol start="20">
+<li>
+<p>Click the incident to view details.</p>
+</li>
+<li>
+<p>Investigate the details page, then scroll to the bottom and add a comment. Finally, scroll to the top and select <strong>Acknowledge Incident</strong>.</p>
+</li>
+<li>
+<p>Switch back to the main <strong>Alerting</strong> page and notice the changes.</p>
+</li>
+</ol>
+<p>Click <em>Check my progress</em> to verify the objective.
+<ql-activity-tracking step="2">
+Create an App Engine latency alert.
+</ql-activity-tracking></p>
+<h2 id="step7">Task 5. (Optional) Creating an Alerting Policy with the CLI</h2>
+<p>The Alerting CLI (and API) can be very effective when applying alerting policies with code or scripts.</p>
+<ol>
+<li>
+<p>Return to the Cloud Shell code editor. Select the <strong>training-data-analyst/courses/design-process/deploying-apps-to-gcp</strong> folder in the explorer tree on the left.</p>
+</li>
+<li>
+<p>From the <strong>File</strong> menu, select <strong>New File</strong> and name the file <strong>app-engine-error-percent-policy.json</strong>.</p>
+</li>
+<li>
+<p>Create an alerting policy which divides the number of 500 errors by the total number of responses, then triggers when the 500 errors exceed 1 percent. Paste the following into the file you just created:</p>
+</li>
+</ol>
+<ql-code-block language="json">
+{
+    "displayName": "HTTP error count exceeds 1 percent for App Engine apps",
+    "combiner": "OR",
+    "conditions": [
+        {
+            "displayName": "Ratio: HTTP 500s error-response counts / All HTTP response counts",
+            "conditionThreshold": {
+                 "filter": "metric.label.response_code&gt;=\"500\" AND metric.label.response_code&lt;\"600\" AND metric.type=\"appengine.googleapis.com/http/server/response_count\" AND resource.type=\"gae_app\"",
+                 "aggregations": [
+                    {
+                        "alignmentPeriod": "60s",
+                        "crossSeriesReducer": "REDUCE_SUM",
+                        "groupByFields": [
+                          "project",
+                          "resource.label.module_id",
+                          "resource.label.version_id"
+                        ],
+                        "perSeriesAligner": "ALIGN_DELTA"
+                    }
+                ],
+                "denominatorFilter": "metric.type=\"appengine.googleapis.com/http/server/response_count\" AND resource.type=\"gae_app\"",
+                "denominatorAggregations": [
+                   {
+                      "alignmentPeriod": "60s",
+                      "crossSeriesReducer": "REDUCE_SUM",
+                      "groupByFields": [
+                        "project",
+                        "resource.label.module_id",
+                        "resource.label.version_id"
+                       ],
+                      "perSeriesAligner": "ALIGN_DELTA"
+                    }
+                ],
+                "comparison": "COMPARISON_GT",
+                "thresholdValue": 0.01,
+                "duration": "0s",
+                "trigger": {
+                    "count": 1
+                }
+            }
+        }
+    ]
+}
+
+</ql-code-block>
+<ol start="4">
+<li>
+<p>Save your file. Make sure you are in the correct folder and that your alerting policy was saved there.</p>
+<ql-code-block language="bash">
+cd ~/training-data-analyst/courses/design-process/deploying-apps-to-gcp
+ls
+</ql-code-block>
+</li>
+<li>
+<p>Deploy the alerting policy with the following command:</p>
+<ql-code-block language="bash">
+gcloud alpha monitoring policies create --policy-from-file="app-engine-error-percent-policy.json"
+</ql-code-block>
+</li>
+<li>
+<p>Back in the Google Cloud Console, return to the <strong>Monitoring &gt; Alerting</strong> page. In the <strong>Policies</strong> section, you should see the alerting policy you just deployed.</p>
+</li>
+<li>
+<p>Click your <strong>HTTP error…</strong> policy to see its details. Edit the notification channel so you receive an email when the alert fires.</p>
+</li>
+<li>
+<p>Deploy the App Engine app with a random error to test this policy. Return to the Cloud Shell code editor. Expand the <strong>training-data-analyst/courses/design-process/deploying-apps-to-gcp</strong> folder in the explorer tree on the left.</p>
+</li>
+<li>
+<p>Open the <code>main.py</code> file in the Cloud Shell editor.</p>
+</li>
+<li>
+<p>Replace the current <code>main()</code> function with the one below. This new function removes our sleep command and uses the random number generator to return a 500 error about 2% of the time. This should be enough to cause your HTTP error count policy to trigger.</p>
+</li>
+</ol>
+<ql-code-block language="python">
+@app.route("/")
+def main():
+    num = random.randrange(49)
+    if num == 0:
+        return json.dumps({"error": 'Error thrown randomly'}), 500
+    else:
+        model = {"title": "Hello GCP."}
+        return render_template('index.html', model=model)
+</ql-code-block>
+<ol start="11">
+<li>
+<p>Redeploy your application with the following command:</p>
+<ql-code-block language="bash">
+gcloud app deploy --version=two --quiet
+</ql-code-block>
+</li>
+<li>
+<p>Wait for the command to finish the redeployment.</p>
+</li>
+<li>
+<p>After the command completes, return to the <strong>App Engine &gt; Dashboard</strong> and make sure the link works.</p>
+</li>
+<li>
+<p>In Cloud Shell, rerun the load generator command from earlier:</p>
+<ql-code-block language="bash">
+while true; do curl -s https://$DEVSHELL_PROJECT_ID.appspot.com/ | grep -e "&lt;title&gt;" -e "error";sleep .$[( $RANDOM % 10 )]s;done
+</ql-code-block>
+</li>
+</ol>
+<p>In Cloud Shell, you should see an error appear randomly about 2% of the time. Leave the command running.</p>
+<ol start="15">
+<li>
+<p>In the Console, go to <strong>Monitoring &gt; Alerting</strong>, wait another few minutes, and then you should see an alerting incident fire. You should also get an email. This won’t happen immediately, you have to be patient.</p>
+</li>
+<li>
+<p>Once you get the email and see the incident fire, go back to Cloud Shell and press CTRL+C to stop the requests.</p>
+</li>
+</ol>
+<p>If you wait a couple more minutes, you see the incident resolve itself and get another email.</p>
+<ol start="17">
+<li>
+<p>To make sure you don’t get any emails after the project is deleted, delete your notification channels. Click the <strong>HTTP error count…</strong> policy to see its details. Click the <strong>Edit</strong> link, expand the Notification Channel and uncheck yourself. Toggle off <code>Use notification channel</code>. Save your changes and then <strong>Delete</strong> the policy.</p>
+</li>
+<li>
+<p>Repeat the previous step to your Uptime check alerting policy.</p>
+</li>
+</ol>
+<h2 id="step8">Review</h2>
+<p>In this exercise, you used the Google Cloud Console and CLI to create and test alerting policies. Good job!</p>
+<h2 id="step9">End your lab</h2>
+<p>When you have completed your lab, click <strong>End Lab</strong>. Google Cloud Skills Boost removes the resources you’ve used and cleans the account for you.</p>
+<p>You will be given an opportunity to rate the lab experience. Select the applicable number of stars, type a comment, and then click <strong>Submit</strong>.</p>
+<p>The number of stars indicates the following:</p>
+<ul>
+<li>1 star = Very dissatisfied</li>
+<li>2 stars = Dissatisfied</li>
+<li>3 stars = Neutral</li>
+<li>4 stars = Satisfied</li>
+<li>5 stars = Very satisfied</li>
+</ul>
+<p>You can close the dialog box if you don't want to provide feedback.</p>
+<p>For feedback, suggestions, or corrections, please use the <strong>Support</strong> tab.</p>
+
+<p>Copyright 2022 Google LLC All rights reserved. Google and the Google logo are trademarks of Google LLC. All other company and product names may be trademarks of the respective companies with which they are associated.</p>
+
+
+
+
+
+</div>
+</div>
+
+
+<div class='lab-content__end-lab-button js-end-lab-button-container hidden'>
+<ql-lab-control-button class='js-end-lab-button' running></ql-lab-control-button>
+</div>
+<!-- / TODO: Move recommendations into the end lab modal -->
+</div>
+<div aria-label='Lab Table of Contents' class='outline-container' id='js-outline-container' role='navigation'>
+<ul class='lab-content__outline js-lab-content-outline'>
+<li><a href="#step1">Overview</a></li><li><a href="#step2">Setup and requirements</a></li><li><a href="#step3">Task 1. Download and test a sample app from GitHub</a></li><li><a href="#step4">Task 2. Deploy an application to App Engine</a></li><li><a href="#step5">Task 3. Examine the App Engine logs</a></li><li><a href="#step6">Task 4. Create an App Engine latency alert</a></li><li><a href="#step7">Task 5. (Optional) Creating an Alerting Policy with the CLI</a></li><li><a href="#step8">Review</a></li><li><a href="#step9">End your lab</a></li>
+</ul>
+</div>
+</ql-drawer-content>
+</ql-drawer-container>
+</ql-drawer-content>
+</ql-drawer-container>
+<ql-snackbar id='alert-snackbar'></ql-snackbar>
+
+
+
+</div>
+</main>
+
+<span class='hidden' id='flash-sibling-before'></span>
+<ql-snackbar></ql-snackbar>
+
+<script data-glue-cookie-notification-bar-category='2B' src='https://www.gstatic.com/glue/cookienotificationbar/cookienotificationbar.min.js'></script>
+
+<ql-dialog headline='Score Details' icon='task_alt' id='jupyter-feedback-modal'>
+<iframe id='jupyter-feedback-frame' srcdoc='' title='Jupyter Feedback'></iframe>
+</ql-dialog>
+
+<div class='modal fade' id='lab-details-modal'>
+<div class='modal-container'>
+<div class='modal-content mdl-shadow--24dp'>
+<div class='modal-body'>
+<p class='l-mbm'>
+Deploy an application to Google Cloud and then create alerting policies for it
+</p>
+<p class='small-label l-mbs'>
+<strong>
+Duration:
+</strong>
+0m setup
+&middot;
+90m access
+&middot;
+90m completion
+</p>
+<p class='small-label l-mbs'>
+<strong>AWS Region:</strong>
+[] <strong></strong>
+</p>
+<p class='small-label l-mbs'>
+<span><strong>Levels: </strong>intermediate</span>
+</p>
+<p class='small-label'>
+<strong>
+Permalink:
+</strong>
+<a href="https://googlecoursera.qwiklabs.com/catalog_lab/2645">https://googlecoursera.qwiklabs.com/catalog_lab/2645</a>
+</p>
+</div>
+<div class='modal-actions'>
+<a class='button button--text' data-dismiss='modal'>
+Got It
+</a>
+</div>
+
+
+</div>
+</div>
+<iframe class='l-ie-iframe-fix' tabindex='-1' title='modal'></iframe>
+</div>
+<ql-dialog headline='How satisfied are you with this lab?&lt;span aria-hidden=&quot;true&quot;&gt;*&lt;/span&gt;' id='lab-review-dialog'>
+<form class="simple_form js-lab-review-form" id="new_lab_review" action="/lab_reviews" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" type="hidden" value="&#x2713;" autocomplete="off" /><div aria-labelledby='lab-review-dialog' aria-required='true' aria-valuemax='5' aria-valuemin='0' aria-valuenow='0' class='rateit js-rateit' data-rateit-max='5' data-rateit-min='0' data-rateit-resetable='false' data-rateit-step='1' data-rateit-value='0' id='lab-review-rateit' role='slider' tabindex='0'></div>
+<div class='l-mtm'>
+
+<div class="control-group hidden lab_review_user_id"><div class="controls"><input class="hidden" autocomplete="off" type="hidden" value="12197799" name="lab_review[user_id]" id="lab_review_user_id" /></div></div>
+<div class="control-group hidden lab_review_classroom_id"><div class="controls"><input class="hidden" autocomplete="off" type="hidden" name="lab_review[classroom_id]" id="lab_review_classroom_id" /></div></div>
+<div class="control-group hidden lab_review_lab_id"><div class="controls"><input class="hidden" autocomplete="off" type="hidden" value="2645" name="lab_review[lab_id]" id="lab_review_lab_id" /></div></div>
+<div class="control-group hidden lab_review_focus_id"><div class="controls"><input class="hidden" autocomplete="off" type="hidden" name="lab_review[focus_id]" id="lab_review_focus_id" /></div></div>
+<div class="control-group hidden lab_review_rating"><div class="controls"><input class="hidden js-rating-input" autocomplete="off" type="hidden" name="lab_review[rating]" id="lab_review_rating" /></div></div>
+<div class="control-group text optional lab_review_comment"><label class="text optional control-label" for="lab_review_comment">Additional Comments</label><div class="controls"><textarea class="text optional" name="lab_review[comment]" id="lab_review_comment">
+</textarea></div></div>
+</div>
+</form><ql-button disabled id='submit' label='Submit' slot='action' text></ql-button>
+</ql-dialog>
+
+<ql-dialog headline='All done? If you end this lab, you will lose all your work. You may not be able to restart the lab if there is a quota limit. Are you sure you want to end this lab?' icon='error_outline' id='js-lab-are-you-sure-dialog'>
+<ql-button id='js-are-you-sure-button' label='Submit' slot='action' text></ql-button>
+</ql-dialog>
+
+
+<script>
+  $(function() {
+    ql.initMaterialInputs();
+    initChosen();
+    initSearch();
+    initTabs();
+    ql.list.init();
+    ql.favoriting.init();
+    ql.header.myAccount.init();
+    initTooltips();
+    ql.autocomplete.init();
+    ql.modals.init();
+    ql.toggleButtons.init();
+    ql.analytics.init();
+    ql.chat.init();
+  ql.jumpContent.init();
+  ql.labControlPanel.addRecaptchaErrorHandler();
+  initLabContent();
+  ql.labOutline.links.init();
+  initLabReviewModal();
+  initLabReviewTranslations( {"star_amount_1":"1 of 5 stars","star_amount_2":"2 of 5 stars","star_amount_3":"3 of 5 stars","star_amount_4":"4 of 5 stars","star_amount_5":"5 of 5 stars"} )
+  ql.labAssessment.init();
+  ql.labData.init();
+  initLabTranslations( {"are_you_sure":"All done? If you end this lab, you will lose all your work. You may not be able to restart the lab if there is a quota limit. Are you sure you want to end this lab?","in_progress":"*In Progress*","ending":"*Ending*","starting":"*Starting, please wait*","end_concurrent_labs":"Sorry, you can only run one lab at a time. To start this lab, please confirm that you want all of your existing labs to end.","copied":"Copied","no_resource":"Error retrieving resource.","no_support":"No Support","mac_press":"Press ⌘-C to copy","thanks_review":"Thanks for reviewing this lab.","windows_press":"Press Ctrl-C to copy","days":"days"} );
+  ql.labRun.init();
+  ql.navPanel.init();
+  ql.navigation.init();
+  
+  });
+</script>
+
+</body>
+</html>
+
